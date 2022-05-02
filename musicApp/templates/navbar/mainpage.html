@@ -1,0 +1,142 @@
+<!doctype html>
+{% load static %}
+
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+
+    <title>Musical Application</title>
+    <style>
+        body {
+            background-color: rgb(241, 250, 217);
+        }
+
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        /* Position text in the middle of the page/image */
+        .fileUpload {
+            background-color: rgb(0, 0, 0); /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4); /* Black w/opacity/see-through */
+            color: white;
+            font-weight: bold;
+            border: 3px solid #f1f1f1;
+            width: 60%;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+<script
+        src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous"></script>
+<center>
+    <h2 style="margin-bottom: 20px">Musical Application</h2>
+    <div class="worksQuery">
+        <label style="margin-right: 20px;color: red">Input ISWC in format: 1234567,1234568,145879</label><input
+            id="iswcCheck" style="margin-right: 30px">
+        <button onclick="worksList()">Check Works</button>
+        <table style="border: 1px solid #dee2e6;"
+               class="table table-sm  table-striped table-bordered table-hover display compact nowrap no-gutters">
+            <thead class="thead-dark">
+            <tr>
+                <th>Iswc</th>
+                <th>Contributors</th>
+            </tr>
+            </thead>
+            <tbody id="here_table">
+            </tbody>
+        </table>
+    </div>
+    <div class="allMusicalWorks">
+        <h2 style="margin-bottom: 20px; margin-top: 50px;">All musical works</h2>
+        <table style="border: 1px solid #dee2e6;
+    margin-bottom: 80px;
+    margin-top: 30px;" id=""
+               class="table table-sm  table-striped table-bordered table-hover display compact nowrap no-gutters">
+            <thead class="thead-dark">
+            <tr>
+                <th>Title</th>
+                <th>Contributors</th>
+                <th>Iswc</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for work in works %}
+                <tr style="color: #30bc8e; cursor: not-allowed;">
+                    <td>
+                        {{ work.title }}
+                    </td>
+                    <td>
+                        {{ work.contributors|join:", " }}
+                    </td>
+                    <td>
+                        {{ work.iswc }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="fileUpload">
+        <label style="margin-right: 20px;color: red">Upload a new CSV file to create new work records</label>
+        <form action="/upload/" method="POST" enctype="multipart/form-data">{% csrf_token %}
+            <input type="file" name="file"/>{{ worksListVar }}
+            <br/>{{ context }}
+            <input type="submit" value="Upload File"/><span
+                    style="{% if request.GET.status == 'True' %}color:green {% elif request.GET.status == 'False' %} color:red {% endif %}">
+                    {% if request.GET.status == 'True' %} Successfully uploaded {% elif request.GET.status == 'False' %}
+                        Wrong file format {% endif %}</span>
+        </form>
+    </div>
+    <br><br>
+
+</center>
+</body>
+</html>
+{% block scripts %}
+    <script type="text/javascript">
+        function worksList() {
+            const csrf = $("#global-csrf").attr("csrf");
+            let worksList = $("#iswcCheck").val()
+            $.ajax({
+                    type: "GET",
+                    url: `/api/worklist?worksList=${worksList}`,
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                        "X-CSRFToken": csrf,
+                    },
+                    success(res) {
+                        var worksList = res.results
+                        for (var i = 0; i < worksList.length; i++) {
+                            $('#here_table').append('<tr><td>' + worksList[i].iswc + '</td><td>' + worksList[i].contributors + '</td></tr>');
+                        }
+                    },
+                    error() {
+                        alert("Error occurred on getting works list");
+                    }
+                    ,
+                }
+            )
+            ;
+        }
+
+    </script>
+{% endblock %}
