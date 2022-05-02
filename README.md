@@ -73,3 +73,7 @@ host system.
 1. Start the services
    ```
     docker-compose up -d
+
+Run/Debug configuration
+![img_1.png](img_1.png)
+![img.png](img.png)

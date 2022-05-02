@@ -1,0 +1,18 @@
+Part 1
+1-Describe briefly the matching and reconciling method chosen.
+For storing metadata I choose to create a simple POST request.
+If we upload a csv file all the data will be extracted and will be saved on postgres database
+
+2-We constantly receive metadata from our providers, how would
+you automatize the process?
+If we receive new metadata, we upload the new file and all new datas with be saved on postgres database.
+
+
+Part 2
+1-Imagine that the Single View has 20 million musical works, do
+you think your solution would have a similar response time?
+Of course No, we will have a delay in response
+
+2-If not, what would you do to improve it?
+Using pagination
+
